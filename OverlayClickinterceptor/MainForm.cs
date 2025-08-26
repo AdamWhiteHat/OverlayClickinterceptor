@@ -26,21 +26,24 @@ namespace OverlayClickinterceptor
             OverlayMouseInfo newForm = new OverlayMouseInfo();
             newForm.Name = $"OverlayForm{newIdNum}";
             lbWindows.Items.Add(newForm);
-            newForm.FormClosed += NewForm_FormClosed;
-            this.Cursor = Cursors.Cross;
+            newForm.FormClosing += NewForm_FormClosing;
+            newForm.OverlayClicked += Overlay_Clicked;
             newForm.Show(this);
+
         }
 
-        private void NewForm_FormClosed(object? sender, FormClosedEventArgs e)
+        private void NewForm_FormClosing(object? sender, FormClosingEventArgs e)
         {
-            this.Cursor = Cursors.Default;
-            Form closedForm = sender as Form;
-            if (closedForm == null)
+            OverlayMouseInfo closingForm = sender as OverlayMouseInfo;
+            if (closingForm == null)
             {
                 return;
             }
 
-            int indexToRemove = lbWindows.Items.IndexOf(closedForm);
+            closingForm.FormClosing -= NewForm_FormClosing;
+            closingForm.OverlayClicked -= Overlay_Clicked;
+
+            int indexToRemove = lbWindows.Items.IndexOf(closingForm);
             if (indexToRemove == -1)
             {
                 return;
@@ -58,6 +61,25 @@ namespace OverlayClickinterceptor
 
             Form toClose = (Form)lbWindows.SelectedItem;
             toClose.Close();
+        }
+
+        private void lbWindows_MouseDown(object sender, MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Right)
+            {
+                lbWindows.SelectedIndex = lbWindows.IndexFromPoint(e.X, e.Y);
+            }
+        }
+
+        private void Overlay_Clicked(object sender, MouseEventArgs e)
+        {
+            OverlayMouseInfo overlayForm = sender as OverlayMouseInfo;
+            if (overlayForm == null)
+            {
+                return;
+            }
+
+            tbClickMessages.AppendText($"{overlayForm.Name}.MouseClicked: ({e.X}, {e.Y})" + Environment.NewLine);
         }
     }
 }

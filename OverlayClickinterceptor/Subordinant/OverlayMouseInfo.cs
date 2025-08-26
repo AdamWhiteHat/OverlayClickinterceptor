@@ -24,6 +24,11 @@ namespace OverlayClickinterceptor.Subordinant
 
     public partial class OverlayMouseInfo : Form
     {
+        /// <summary>
+        /// Fired when a mouse click occurs within an overlay
+        /// </summary>
+        public EventHandler<MouseEventArgs> OverlayClicked;
+
         [Browsable(true)]
         [Category(nameof(CategoryAttribute.Appearance))]
         [DefaultValue(HatchStyle.Percent10)]
@@ -36,7 +41,6 @@ namespace OverlayClickinterceptor.Subordinant
                 {
                     _hatchingStyle = value;
 
-                    _thatchedBrush.Dispose();
                     _thatchedBrush = null;
 
                     OnStyleChanged(EventArgs.Empty);
@@ -58,6 +62,14 @@ namespace OverlayClickinterceptor.Subordinant
                 }
                 return _thatchedBrush;
             }
+            private set
+            {
+                if (_thatchedBrush != null)
+                {
+                    _thatchedBrush.Dispose();
+                }
+                _thatchedBrush = value;
+            }
         }
         private Brush _thatchedBrush = null;
 
@@ -71,7 +83,7 @@ namespace OverlayClickinterceptor.Subordinant
         private ResizeOrigin resizingOrigin = ResizeOrigin.None;
 
         private static int ResizeBorderSize = 12;
-        private static Rectangle TextInvalidateRegion = new Rectangle(ResizeBorderSize,ResizeBorderSize,130 + ResizeBorderSize, 75 + ResizeBorderSize);
+        private static Rectangle TextInvalidateRegion = new Rectangle(ResizeBorderSize,ResizeBorderSize,110 + ResizeBorderSize, 75 + ResizeBorderSize);
         private static string TextFormat_MouseInformation = "{0}, {1}\nClick.X: {2}\nClick.Y: {3}";
 
         #endregion
@@ -79,6 +91,8 @@ namespace OverlayClickinterceptor.Subordinant
         public OverlayMouseInfo()
         {
             InitializeComponent();
+
+            this.MinimumSize = new Size(TextInvalidateRegion.Size.Width, TextInvalidateRegion.Size.Height);
 
             //this.SetStyle(ControlStyles.UserPaint, true);
             this.SetStyle(ControlStyles.SupportsTransparentBackColor, true);
@@ -96,6 +110,16 @@ namespace OverlayClickinterceptor.Subordinant
             GlobalHooks.GlobalHookEvents.MouseDownExt += OverlayMouseInfo_MouseDown;
             GlobalHooks.GlobalHookEvents.MouseMoveExt += OverlayMouseInfo_MouseMove;
             GlobalHooks.GlobalHookEvents.MouseUpExt += OverlayMouseInfo_MouseUp;
+
+            this.FormClosing += OverlayMouseInfo_FormClosing;
+        }
+
+        private void OverlayMouseInfo_FormClosing(object? sender, FormClosingEventArgs e)
+        {
+            GlobalHooks.GlobalHookEvents.MouseDownExt -= OverlayMouseInfo_MouseDown;
+            GlobalHooks.GlobalHookEvents.MouseMoveExt -= OverlayMouseInfo_MouseMove;
+            GlobalHooks.GlobalHookEvents.MouseUpExt -= OverlayMouseInfo_MouseUp;
+            ThatchedBrush = null;
         }
 
         #region Overrides
@@ -121,16 +145,11 @@ namespace OverlayClickinterceptor.Subordinant
                 g.Clear(this.TransparencyKey);
                 g.FillRectangle(ThatchedBrush, bounds);
 
-                // Don't draw border if we are only invalidating TextInvalidateRegion, as TextInvalidateRegion excludes the border region
-                // This is essentially checking that bounds != TextInvalidateRegion
-                if (bounds.Left == 0 || bounds.Top == 0 || bounds.Width >= this.Width || bounds.Height >= this.Height)
-                {
-                    ControlPaint.DrawBorder(g, bounds,
-                        Color.LightGray, ResizeBorderSize, ButtonBorderStyle.Dotted,
-                        Color.LightGray, ResizeBorderSize, ButtonBorderStyle.Dotted,
-                        Color.LightGray, ResizeBorderSize, ButtonBorderStyle.Dotted,
-                        Color.LightGray, ResizeBorderSize, ButtonBorderStyle.Dotted);
-                }
+                ControlPaint.DrawBorder(g, this.ClientRectangle,
+                    Color.LightGray, ResizeBorderSize, ButtonBorderStyle.Dotted,
+                    Color.LightGray, ResizeBorderSize, ButtonBorderStyle.Dotted,
+                    Color.LightGray, ResizeBorderSize, ButtonBorderStyle.Dotted,
+                    Color.LightGray, ResizeBorderSize, ButtonBorderStyle.Dotted);
 
                 if (!string.IsNullOrWhiteSpace(this.Text))
                 {
@@ -145,6 +164,11 @@ namespace OverlayClickinterceptor.Subordinant
         #endregion
 
         #region Mouse Events
+
+        protected void RaiseOverlayClicked(MouseEventArgs args)
+        {
+            OverlayClicked?.Invoke(this, args);
+        }
 
         private void OverlayMouseInfo_MouseDown(object sender, MouseEventExtArgs e)
         {
@@ -179,6 +203,8 @@ namespace OverlayClickinterceptor.Subordinant
                     }
 
                     e.Handled = true;
+
+                    RaiseOverlayClicked(new MouseEventArgs(e.Button, e.Clicks, e.Location.X, e.Location.Y, e.Delta));
                 }
 
                 UpdateControlText(e.Location);

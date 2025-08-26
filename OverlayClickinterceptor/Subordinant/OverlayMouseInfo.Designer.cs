@@ -35,20 +35,20 @@ namespace OverlayClickinterceptor.Subordinant
             // 
             // OverlayMouseInfo
             // 
-            AutoScaleDimensions = new SizeF(10F, 23F);
-            AutoScaleMode = AutoScaleMode.Font;
+            AutoScaleDimensions = new SizeF(120F, 120F);
+            AutoScaleMode = AutoScaleMode.Dpi;
             BackColor = SystemColors.Control;
-            ClientSize = new Size(300, 300);
+            ClientSize = new Size(270, 261);
             ControlBox = false;
             DoubleBuffered = true;
-            Font = new Font("Segoe UI", 10.2F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            Font = new Font("Segoe UI Semibold", 9F, FontStyle.Bold, GraphicsUnit.Point, 0);
             ForeColor = Color.Black;
             FormBorderStyle = FormBorderStyle.None;
             Margin = new Padding(4, 3, 4, 3);
             MaximizeBox = false;
             MinimizeBox = false;
             Name = "OverlayMouseInfo";
-            Padding = new Padding(6);
+            Padding = new Padding(5);
             ShowIcon = false;
             SizeGripStyle = SizeGripStyle.Show;
             StartPosition = FormStartPosition.CenterScreen;

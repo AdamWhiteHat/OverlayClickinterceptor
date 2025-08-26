@@ -53,13 +53,12 @@ namespace OverlayClickinterceptor
             // tbClickMessages
             // 
             tbClickMessages.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
-            tbClickMessages.Cursor = Cursors.Cross;
             tbClickMessages.Location = new Point(235, 12);
             tbClickMessages.Multiline = true;
             tbClickMessages.Name = "tbClickMessages";
             tbClickMessages.ReadOnly = true;
             tbClickMessages.ScrollBars = ScrollBars.Vertical;
-            tbClickMessages.Size = new Size(553, 426);
+            tbClickMessages.Size = new Size(415, 426);
             tbClickMessages.TabIndex = 1;
             // 
             // lbWindows
@@ -67,11 +66,12 @@ namespace OverlayClickinterceptor
             lbWindows.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left;
             lbWindows.ContextMenuStrip = contextMenuListBox;
             lbWindows.FormattingEnabled = true;
-            lbWindows.Location = new Point(12, 114);
+            lbWindows.Location = new Point(12, 54);
             lbWindows.Name = "lbWindows";
             lbWindows.ScrollAlwaysVisible = true;
-            lbWindows.Size = new Size(217, 324);
+            lbWindows.Size = new Size(217, 384);
             lbWindows.TabIndex = 2;
+            lbWindows.MouseDown += lbWindows_MouseDown;
             // 
             // contextMenuListBox
             // 
@@ -91,7 +91,7 @@ namespace OverlayClickinterceptor
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(800, 450);
+            ClientSize = new Size(662, 450);
             Controls.Add(lbWindows);
             Controls.Add(tbClickMessages);
             Controls.Add(btnPlaceOverlay);
